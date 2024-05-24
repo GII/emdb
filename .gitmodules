@@ -1,0 +1,15 @@
+[submodule "emdb_cognitive_nodes_gii"]
+	path = emdb_cognitive_nodes_gii
+	url = https://github.com/GII/emdb_cognitive_nodes_gii.git
+[submodule "emdb_core"]
+	path = emdb_core
+	url = https://github.com/GII/emdb_core.git
+[submodule "emdb_discrete_event_simulator_gii"]
+	path = emdb_discrete_event_simulator_gii
+	url = https://github.com/GII/emdb_discrete_event_simulator_gii.git
+[submodule "emdb_experiments_gii"]
+	path = emdb_experiments_gii
+	url = https://github.com/GII/emdb_experiments_gii.git
+[submodule "emdb_cognitive_processes_gii"]
+	path = emdb_cognitive_processes_gii
+	url = https://github.com/GII/emdb_cognitive_processes_gii.git
