@@ -7,7 +7,7 @@ If you want to configure the behavior of a Perception node, you can create your 
 
 The basic method that must be implemented is the **process_and_send_reading**, which is in charge of transforming the perceptions received from a simulator or a real robot to the format used in the cognitive architecture. Then, it publishes the transformed perception in the Value topic. The format of the perception is the following one:
 
-```
+```python
 {'sensor_name':[sensor_value0, sensor_value1, ...]}
 
 # The sensor values must be dictionaries. i.e: sensor_value0 = {'distance':10}
@@ -15,7 +15,7 @@ The basic method that must be implemented is the **process_and_send_reading**, w
 
 For instance, in the case of the example experiment with the discrete event simulator, the method is implemented in this way:
 
-```
+```python
 def process_and_send_reading(self):
     """
     Method that processes the sensor values received
@@ -66,7 +66,7 @@ In this experiment, we have four different Perception nodes, one per sensor:
 
 With that implementation, the transformed perception of these sensors has the following format:
 
-``` 
+```python 
 {'cylinders': [{'distance': 0.18597018918340155, 'angle': 0.503317891044131, 'diameter': 0.46666666666666673}]}
 
 {'boxes': [{'distance': 0.2744255090024155, 'angle': 0.1793823313667857, 'diameter': 0.8}]}
@@ -80,7 +80,7 @@ With that implementation, the transformed perception of these sensors has the fo
 
 In conclusion, we can add to the architecture the perceptions we want, but we need to create a process_and_send_reading that transforms it to the format indicated above.
 
-It's important to remember that, for correct behavior of the cognitive architecture, the perception values must be normalized. That normalization process can be done in the process_and_send_reading method, indicating the values to normalize in the experiment configuration yaml file.
+It's important to remember that, for correct behavior of the cognitive architecture, the perception values must be normalized. That normalization process can be done in the process_and_send_reading method, indicating the values to normalize in the experiment configuration YAML file.
 
 ## How to interact with a Perception node
 
@@ -91,6 +91,6 @@ In the case of the activation, the default value of the Perception node is 1.0, 
 
 In the Value topic, we can read the transformed and normalized value of the perception and we can use it in the cognitive architecture.
 
-At this moment, we have a default topic configured in the configuration yaml file of the experiment from which the Perception node reads the original sensor values, coming from the robot or simulator, before transforming them. In the future, will be available a **set_inputs service**, with which we will be able to change that topic during execution.
+At this moment, we have a default topic configured in the configuration YAML file of the experiment from which the Perception node reads the original sensor values, coming from the robot or simulator, before transforming them. In the future, will be available a **set_inputs service**, with which we will be able to change that topic during execution.
 
 

@@ -14,7 +14,7 @@ Other methods can be implemented to get the desired behavior.
 
 For instance, in the Goal of the example experiment with the discrete event simulator, embedded in a class called GoalObjectInBoxStandalone, this is the implementation of the basic methods:
 
-```
+```python
 def calculate_activation(self, perception = None):
     """
     Returns the the activation value of the goal
@@ -79,7 +79,7 @@ The way to use this service depends on the specific application. For instance, i
 
 Also, if we want to set the activation of the node manually, without calculating it internally, we can create a dummy calculate_activation method and only modify the value with the set_activation service.
 
-```
+```python
 def calculate_activation(self, perception = None):
     """
     Returns the the activation value of the goal
