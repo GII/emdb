@@ -50,7 +50,7 @@ Here we can configure the topic in which control actions are published  (*/main_
 
 We can decide the elements that the cognitive architecture will create when it's launched or during execution:
 
-- **Files:**:
+- **Files:**
 
     We can decide the output files that the architecture will generate and in which we can check the results of the experiment.
 
@@ -260,7 +260,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
     )
 ```
 
-**Generate launch description**
+**Generate launch description:**
 
 Here we have to declare the input arguments and parameters, indicating their name, which has to be the same as the put in the function above; their default value, and their description.
 
