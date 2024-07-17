@@ -14,6 +14,7 @@ The architecture, at this moment, is divided into five GitHub repositories, whic
 ## How to do
 We included several short guides to help our partners in the first steps to add their own implementations into the architecture:
 
+- [How to install the e-MDB cognitive architecture software](how_to_do/how_to_install.md)
 - [How to work with Cognitive Nodes](how_to_do/work_with_cognitive_nodes.md)
 - [How to work with Goals](how_to_do/work_with_goals.md)
 - [How to work with Perceptions](how_to_do/work_with_perceptions.md)
