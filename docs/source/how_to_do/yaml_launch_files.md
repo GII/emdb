@@ -4,10 +4,30 @@ In this section, we are going to see how to use the YAML and launch files in ord
 
 These files appear in other How To Do sections, but here we will do a complete explanation of both.
 
-## YAML file
+## YAML files
 
 The YAML file defines the parameters of the experiment that determine the behavior of the cognitive architecture.
 We can configure the following ones:
+
+**Commander configuration file**
+
+This file, commander.yaml, is located in the core package, in the config directory (core/config). Here it's possible to decide the number of execution nodes that the commander is going to create and the number of threads of each one.
+By default, there are 5 execution nodes with 1 thread for each one:
+```
+Commander:
+    ExecutionNode:
+        -
+            threads: 1
+        -
+            threads: 1
+        -
+            threads: 1
+        -
+            threads: 1
+        -
+            threads: 1
+
+```
 
 **Cognitive processes:**
 
