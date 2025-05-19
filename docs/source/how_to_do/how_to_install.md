@@ -24,10 +24,10 @@ colcon build --symlink-install
 Remember to install the dependencies!
 
 - ROS 2 Humble
-- Numpy 1.24.3
+- Numpy 1.24.2
 - Sklearn 1.4.2
-- Tensorflow 2.15.0
-- Yamlloader 1.3.2
+- Tensorflow 2.16.1
+- Yamlloader 1.4.1
 
 *Other versions could work, but the indicated ones have proven to be functional.*
 ```

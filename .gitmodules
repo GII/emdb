@@ -1,15 +1,20 @@
 [submodule "emdb_cognitive_nodes_gii"]
 	path = emdb_cognitive_nodes_gii
-	url = https://github.com/GII/emdb_cognitive_nodes_gii.git
+	url = https://github.com/pillar-robots/emdb_cognitive_nodes_gii.git
+	branch = main
 [submodule "emdb_core"]
 	path = emdb_core
-	url = https://github.com/GII/emdb_core.git
+	url = https://github.com/pillar-robots/emdb_core.git
+	branch = main
 [submodule "emdb_discrete_event_simulator_gii"]
 	path = emdb_discrete_event_simulator_gii
-	url = https://github.com/GII/emdb_discrete_event_simulator_gii.git
+	url = https://github.com/pillar-robots/emdb_discrete_event_simulator_gii.git
+	branch = main
 [submodule "emdb_experiments_gii"]
 	path = emdb_experiments_gii
-	url = https://github.com/GII/emdb_experiments_gii.git
+	url = https://github.com/pillar-robots/emdb_experiments_gii.git
+	branch = main
 [submodule "emdb_cognitive_processes_gii"]
 	path = emdb_cognitive_processes_gii
-	url = https://github.com/GII/emdb_cognitive_processes_gii.git
+	url = https://github.com/pillar-robots/emdb_cognitive_processes_gii.git
+	branch = main

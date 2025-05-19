@@ -1,7 +1,7 @@
-# How to work with Goals 
-In this section, we are going to explain how to work with the Goal cognitive node in the context of the e-MDB cognitive architecture of the PILLAR Robots project. Here you will be able to check how to configure a Goal node or how to interact with it, in order to get its expected behavior.
+# How to work with Motivations 
+In this section, we are going to explain how to work with the Goal cognitive node in the context of the e-MDB cognitive architecture of the PILLAR Robots project. Here you will be able to check how to configure robot's motivations either as Goals or Need/Drives node and how to interact with them in order to get the expected behavior.
 
-## How to configure a Goal node
+## How to configure a standalone Goal node
 
 If you want to configure the behavior of a Goal node, you can create your own class in the goal.py script.
 The basic methods that must be implemented are the following ones:
@@ -93,3 +93,89 @@ def calculate_activation(self, perception = None):
         self.publish_activation(self.activation)
     return self.activation
 ```
+
+## Linking needs, drives and goals
+
+In the latest version of the architecture **Need** and **Drive** nodes were implemented. These nodes alter both the activation and reward provided by the goal. A simple setup would include a need, drive and goal linked, as in the following example:
+
+```yaml
+LTM:
+    Nodes:
+        Need: 
+            -
+                name: object_in_box_need
+                class_name: cognitive_nodes.need.Need
+                parameters:
+                    weight: 1.0
+                    drive_id: 'object_in_box_drive'
+                    need_type: 'Operational'
+        Drive:
+            -
+                name: object_in_box_drive
+                class_name: cognitive_nodes.drive DriveExponential
+                parameters:
+                    input_topic: /mdb/baxter/sensor/progress
+                    input_msg: std_msgs.msg.Float32
+                    min_eval: 0.8 
+                    neighbors: [{"name": "object_in_box_need", "node_type": "Need"}]
+        Goal:
+            -
+                name: object_in_box_goal
+                class_name: cognitive_nodes.goal.GoalMotiven
+                parameters:
+                    neighbors: [{"name": "object_in_box_drive", "node_type": "Drive"}]
+```
+
+This setup allows for full control on the behavior of the different nodes, as each class can be customized as required. Beyond this, the architecture now allows the goals to be automatically discovered and learned. This applies to all drives that do not have a goal linked beforehand. The architecture will create a goal of the class specified in the *connectors* parameter when a reward is detected in a drive. The following example shows how to set up this configuration:
+
+```yaml
+LTM:
+    Connectors:
+        -
+            data: Goal
+            default_class: cognitive_nodes.goal.GoalLearnedSpace
+    Nodes:
+        Need: 
+            -
+                name: object_in_box_need
+                class_name: cognitive_nodes.need.Need
+                parameters:
+                    weight: 1.0
+                    drive_id: 'object_in_box_drive'
+                    need_type: 'Operational'
+        Drive:
+            -
+                name: object_in_box_drive
+                class_name: cognitive_nodes.drive DriveExponential
+                parameters:
+                    input_topic: /mdb/baxter/sensor/progress
+                    input_msg: std_msgs.msg.Float32
+                    min_eval: 0.8 
+                    neighbors: [{"name": "object_in_box_need", "node_type": "Need"}]
+        Goal:
+            -
+                name: object_in_box_goal
+                class_name: cognitive_nodes.goal.GoalMotiven
+                parameters:
+                    neighbors: [{"name": "object_in_box_drive", "node_type": "Drive"}]
+```
+
+### How to interact with a Need node
+
+There are two ROS2 services to interact with the Need nodes:
+
+- **Set_activation service** With this service the activation of the Need node can be changed, which can be used to modify how strongly a need is prioritized.
+- **Get_satisfaction service** With this service we can ask whether the need is satisfied or not. This means, that the linked drive has an evaluation of 0. 
+
+### How to interact with a Drive node
+
+Currently, the implementation of the Drive node reads from a topic that has to be specified in the configuration file (class DriveTopicInput), different drive functions can be created by subclassing (e.g class DriveExponential). Once the node is configured, the following ROS2 interfaces can be used to interact with it:
+
+- **evaluation topic** In this topic the current value of the Drive's activation is published.
+- **get_reward service** This service is used to ask if the drive has detected a reward. A reward is detected when a reduction in the evaluation value is detected, calling this service will reset the detected reward value, therefore, subsequent calls will result in 0 reward unless a further reduction happens.
+
+## The GoalMotiven and GoalLearnedSpace classes
+
+These classes have been implemented to automatically work with drives to facilitate obtaining rewards. In the case of the GoalLearnedSpace class, a space with the rewarded and not rewarded points is also learned automatically.
+
+

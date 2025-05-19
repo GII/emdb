@@ -59,7 +59,7 @@ In the second case, we have to use the services dedicated to add and delete node
 - **CreateNode service:** You can add a node calling this service and indicating its name, the class that it will use and the parameters needed for its operation
 - **DeleteNode service:** You can delete a node from the cognitive architecture calling this service and indicating its name. 
 
-At this moment, the behavior of the cognitive architecture is determined by the cognitive process called main loop, which executes the classical e-MDB loop: reading perceptions, calculation of activations (determining relevant contexts), selecting policies, and executing policies. In this process, it has to create new nodes, calling the CreateNode service. For that, it needs to know the class that the new node has to use, which is indicated in the experiment YAML file, in the Connectors section:
+At this moment, the behavior of the cognitive architecture is determined by the cognitive process called main loop, which executes the classical e-MDB loop: reading perceptions and activations, selecting policies, executing policies, and trigger learning of models and LTM elements. In this process, it has to create new nodes, calling the CreateNode service. For that, it needs to know the class that the new node has to use, which is indicated in the experiment YAML file, in the Connectors section:
 
 ```yaml
 Connectors:
@@ -86,13 +86,13 @@ Connectors:
         default_class: cognitive_nodes.policy.Policy
 ```
 
-The Space class is used in the PNode to store the points and anti-points and to calculate its activation. It can be used in Goals too.
+The Space class is used in the PNode to store the points and anti-points and to calculate its activation. It can also be used in Goals to model rewarded areas of the space.
 
 ## How to interact with Congnitive Nodes
 
 There are some common topics and services with which we are able to interact with the cognitive nodes present in the architecture:
 
-- **Get_activation service:** There are two ways to use this service: sending a perception, with the format specified in [this section](../how_to_do/work_with_perceptions.md), or sending an empty dictionary ({}). In the first case, the node will calculate its new activation with the received perception and will return it. In the second case, the node will return its current activation. There are nodes in which the perception doesn't affect to the activation, so it will return its current activation too, although we send a perception.
+- **Get_activation service:** There are two ways to use this service: sending a perception, with the format specified in [this section](../how_to_do/work_with_perceptions.md), or sending an empty dictionary ({}). In the first case, the node will calculate its new activation with the received perception and will return it. In the second case, the node will return its current activation. There are nodes where perception does not affect activation, so they will return their current activation whether a perception is sent or not.
 
 - **Get_information service:** This service returns information about a specific node, such as its name, its node type, its current activation, or the name and type of its neighbor nodes.
 
@@ -104,10 +104,10 @@ In addition to these, each cognitive node can have its own topics and services.
 
 ## Cognitive Nodes neighbors
 
-To get the correct flow of the activations into the cognitive architecture and get its correct behavior, it's essential to define correctly the neighbors of each cognitive node. The main loop cognitive process is in charge of doing this, but we can do it manually by calling the following services:
+To get the correct flow of the activations into the cognitive architecture and get its correct behavior, it's essential to define correctly the neighbors of each cognitive node. Every node will subscribe to the activations of its neighbors to calculate its own. The main loop cognitive process is in charge of doing this, but we can do it manually by calling the following services:
 
 - **Add_neighbor service:** We can add a neighbor to a cognitive node by calling this service and indicating the name and node type of the neighbor.
 - **Delete_neighbor service:** We can delete a neighbor of a cognitive node by calling this service and indicating the name and node type of the neighbor.
 
-It's important to remember that there is one add_neighbor and delete_neighbor service per cognitive node.
+There is one add_neighbor and one delete_neighbor service per cognitive node.
 
