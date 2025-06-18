@@ -28,6 +28,8 @@ Remember to install the dependencies!
 - Sklearn 1.4.2
 - Tensorflow 2.16.1
 - Yamlloader 1.4.1
+- Pandas 2.2.3
+- Ollama 0.4.7
 
 *Other versions could work, but the indicated ones have proven to be functional.*
 ```
