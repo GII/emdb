@@ -1,14 +1,14 @@
 # How to work with Motivations 
-In this section, we are going to explain how to work with the Goal cognitive node in the context of the e-MDB cognitive architecture of the PILLAR Robots project. Here you will be able to check how to configure robot's motivations either as Goals or Need/Drives node and how to interact with them in order to get the expected behavior.
+In this section, we are going to explain how to work with the motivational cognitive nodes in the context of the e-MDB cognitive architecture of the PILLAR Robots project. Here you will be able to check how to configure robot's motivations either as Goals or Desires/Drives nodes and how to interact with them in order to get the expected behavior.
 
 ## How to configure a standalone Goal node
 
-If you want to configure the behavior of a Goal node, you can create your own class in the goal.py script.
+If you want to configure the behavior of a Goal node, you can create your own class by inheriting the base Goal class in the goal.py module.
 The basic methods that must be implemented are the following ones:
 
-- **Get_reward:** The method in charge of calculate the reward obtained after an executed policy. It determines if the Goal is reached (or if the policy helped to get closer to it).
+- **/get_reward:** This method is in charge of calculating the reward obtained after an executed policy. It determines if the Goal is reached (or if the policy helped to get closer to it).
 
-- **Calculate_activation:** The method that determines the activation of the Goal node. It may depend on the iteration of the experiment, a cognitive process, and more. We have to remember that the activation of the Goal node affects the activation of its neighbor C-Node and consequently, of its connected Policy.
+- **/calculate_activation:** The method that determines the activation of the Goal node. It may depend on the iteration of the experiment, a cognitive process, and more. The activation of the Goal node affects the activation of its neighbor C-Node and consequently, of its connected Policy.
 
 Other methods can be implemented to get the desired behavior.
 
@@ -66,7 +66,6 @@ async def get_reward(self):
 
 The node activation depends on the iteration of the experiment and the reward can be lower than 1.0, if the executed policy helped to get closer to the Goal, or 1.0 if it led to reach it. As we can see, there are other methods that are necessary to calculate the reward obtained, for example.
 
-<!-- Quizá se debería añadir un apartado del por qué del uso de asyncio -->
 
 ## How to interact with a Goal node
 
@@ -96,7 +95,7 @@ def calculate_activation(self, perception = None):
 
 ## Linking needs, drives and goals
 
-In the latest version of the architecture **Need** and **Drive** nodes were implemented. These nodes alter both the activation and reward provided by the goal. A simple setup would include a need, drive and goal linked, as in the following example:
+In the latest version of the architecture **Need** and **Drive** nodes were implemented. These nodes alter both the activation and reward provided by the goal. A simple setup would include a chain of a need, drive and goal nodes, as in the following example:
 
 ```yaml
 LTM:
@@ -152,12 +151,6 @@ LTM:
                     input_msg: std_msgs.msg.Float32
                     min_eval: 0.8 
                     neighbors: [{"name": "object_in_box_need", "node_type": "Need"}]
-        Goal:
-            -
-                name: object_in_box_goal
-                class_name: cognitive_nodes.goal.GoalMotiven
-                parameters:
-                    neighbors: [{"name": "object_in_box_drive", "node_type": "Drive"}]
 ```
 
 ### How to interact with a Need node
@@ -173,6 +166,21 @@ Currently, the implementation of the Drive node reads from a topic that has to b
 
 - **evaluation topic** In this topic the current value of the Drive's activation is published.
 - **get_reward service** This service is used to ask if the drive has detected a reward. A reward is detected when a reduction in the evaluation value is detected, calling this service will reset the detected reward value, therefore, subsequent calls will result in 0 reward unless a further reduction happens.
+
+The class DriveInputTopic creates a drive with a configurable input topic. The input value obtained there is then used to calculate the evaluation of the drive using the **evaluate** method. Derived classes can implement diferent methods for calculating the evaluation. For example, the DriveExponential class uses an exponential function to transform the input to evaluation.
+
+```yaml
+    Nodes:
+        Drive:
+            -
+                name: example_drive
+                class_name: cognitive_nodes.drive DriveExponential
+                parameters:
+                    input_topic: /mdb/baxter/sensor/progress
+                    input_msg: std_msgs.msg.Float32
+                    min_eval: 0.8 
+                    neighbors: [{"name": "object_in_box_need", "node_type": "Need"}]
+```
 
 ## The GoalMotiven and GoalLearnedSpace classes
 

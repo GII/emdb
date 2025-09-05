@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "e-MDB"
-copyright = "2024, GII"
+copyright = "2025, GII"
 author = "GII"
 release = "Apache-2.0"
 

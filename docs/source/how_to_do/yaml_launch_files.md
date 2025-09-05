@@ -1,15 +1,15 @@
 # How to configure an experiment
 
-In this section, we are going to see how to use the YAML and launch files in order to configure our experiments.
+In this section, we will provide an explanation in how to use the YAML and launch files in order to configure our experiments.
 
 These files appear in other How To Do sections, but here we will do a complete explanation of both.
 
 ## YAML files
 
 The YAML file defines the parameters of the experiment that determine the behavior of the cognitive architecture.
-We can configure the following ones:
+There are two files to provide: The commander configuration file and the 
 
-**Commander configuration file**
+### Commander configuration file
 
 This file, commander.yaml, is located in the core package, in the config directory (core/config). Here it's possible to decide the number of execution nodes that the commander is going to create and the number of threads of each one.
 By default, there are 5 execution nodes with 1 thread for each one:
@@ -29,6 +29,10 @@ Commander:
 
 ```
 
+### Experiment configuration file
+
+This file contains the startup configuration that the commander will apply. It includes configurations for the cognitive processes to launch, default node connectors and the initial nodes in the architecture. Additionally, it can contain experiment-specific configurations such as the required for the simulators.
+
 **Cognitive processes:**
 
 We can select the cognitive processes to execute and define their parameters. 
@@ -41,15 +45,18 @@ Here we can define the following:
 Experiment:
     name: main_loop
     class_name: cognitive_processes.main_loop.MainLoop
-    new_executor: False
+    new_executor: True
     threads: 2
     parameters: 
-        iterations: 6000
-        trials: 50
+        iterations: 10000
+        trials: 20
         subgoals: False
+        softmax_selection: True
+        softmax_temperature: 0.3
+        kill_on_finish: True
 ```
 
-The relevant parameters that we can change are the number of iterations of the experiment and the number of trials, or policies executed, before resetting the simulated world or the real environment to prevent the experiment from getting stuck.
+The relevant parameters that we can change are the number of iterations of the experiment and the number of trials, or policies executed, before resetting the simulated world or the real environment to prevent the experiment from getting stuck. Additional parameters include the option to use a probabilistic selection of policies and killing the architecture processes once the iterations have been reached (Useful for batch executions). 
 
 **Control channel:**
 
@@ -59,12 +66,16 @@ If we need a control channel that communicates the cognitive architecture with a
 Control:
     id: ltm_simulator
     control_topic: /main_loop/control
-    control_msg: core_interfaces.msg.ControlMsg
-    executed_policy_topic: /mdb/baxter/executed_policy
-    executed_policy_msg: std_msgs.msg.String
+    control_msg: cognitive_processes_interfaces.msg.ControlMsg
+    episodes_topic: /main_loop/episodes
+    episodes_msg: cognitive_processes_interfaces.msg.Episode
+    executed_policy_service: /emdb/simulator/executed_policy
+    executed_policy_msg: cognitive_node_interfaces.srv.Policy
+    world_reset_service: /emdb/simulator/world_reset
+    world_reset_msg: cognitive_processes_interfaces.srv.WorldReset
 ```
 
-Here we can configure the topic in which control actions are published  (*/main_loop/control/*) and its message (*core_interfaces.msg.ControlMsg*) or the topic in which the policy to execute is published (*/mdb/baxter/executed_policy*) and its message (*std_msgs.msg.String*).
+Here we can configure the interfaces names and message types to communicate with the architecture. This includes the current iteration of the experiment, the episodes generated and the services for policy execution and world resets.
 
 **LTM elements:**
 
@@ -74,103 +85,104 @@ We can decide the elements that the cognitive architecture will create when it's
 
     We can decide the output files that the architecture will generate and in which we can check the results of the experiment.
 
-    ```yaml
-    LTM:
-        Files:
-            -
-                id: goodness
-                class: core.file.FileGoodness
-                file: goodness.txt
-            -
-                id: pnodes_success
-                class: core.file.FilePNodesSuccess
-                file: pnodes_success.txt
-    ```
+```yaml
+LTM:
+    Files:
+        -
+            id: goodness
+            class: core.file.FileGoodness
+            file: goodness.txt
+        -
+            id: pnodes_success
+            class: core.file.FilePNodesSuccess
+            file: pnodes_success.txt
+```
 
     By default, we use the **pnodes_success.txt**, in which we can see the points and anti-points added in each P-Node, and the **goodness.txt**, in which we can see the policy executed in one iteration, the reward obtained, if there have been sensory changes, and more. 
 
-    More files could be configured in the *file.py* script.
+    More files could be configured in the *file.py* script, see the [API reference](https://docs.pillar-robots.eu/projects/emdb_core/en/latest/core/as_API.html#file) for full details.
 
 - **Cognitive Nodes:**
     
     We can add Cognitive Nodes that will be in the LTM from the beginning of the experiment. We have to specify the node type, its name, the class to use, and its parameters:
 
-    ```yaml
-    LTM:
-        Nodes:
-            Perception:
-                -
-                    name: cylinders
-                    class_name: cognitive_nodes.perception.DiscreteEventSimulatorPerception
-                    parameters:
-                        default_msg: simulators_interfaces.msg.ObjectListMsg
-                        default_topic: /mdb/baxter/sensor/cylinders
-                        normalize_data:
-                            distance_min: 0.2
-                            distance_max: 1.9
-                            angle_min: -1.4
-                            angle_max: 1.4
-                            diameter_min: 0.0
-                            diameter_max: 0.15
-                -
-                    name: boxes
-                    class_name: cognitive_nodes.perception.DiscreteEventSimulatorPerception
-                    parameters:
-                        default_msg: simulators_interfaces.msg.ObjectListMsg
-                        default_topic: /mdb/baxter/sensor/boxes
-                        normalize_data:
-                            distance_min: 0.2
-                            distance_max: 1.9
-                            angle_min: -1.4
-                            angle_max: 1.4
-                            diameter_min: 0.0
-                            diameter_max: 0.15
-                -
-                    name: ball_in_left_hand
-                    class_name: cognitive_nodes.perception.DiscreteEventSimulatorPerception
-                    parameters:
-                        default_msg: std_msgs.msg.Bool
-                        default_topic: /mdb/baxter/sensor/ball_in_left_hand
-                -
-                    name: ball_in_right_hand
-                    class_name: cognitive_nodes.perception.DiscreteEventSimulatorPerception
-                    parameters:
-                        default_msg: std_msgs.msg.Bool
-                        default_topic: /mdb/baxter/sensor/ball_in_right_hand
-            WorldModel:
-                -
-                    name: GRIPPER_AND_LOW_FRICTION
-                    class_name: cognitive_nodes.world_model.WorldModel
-            Goal:
-                -
-                    name: object_in_box_standalone
-                    class_name: cognitive_nodes.goal.GoalObjectInBoxStandalone
-                    parameters:
-                        normalize_data:
-                            distance_min: 0.2
-                            distance_max: 1.9
-                            angle_min: -1.4
-                            angle_max: 1.4
-                            diameter_min: 0.0
-                            diameter_max: 0.15
-                        data:
-                            space: cognitive_nodes.space.NormalCentroidPointBasedSpace
-                            points:
-                                -
-                                    cylinders:
-                                        dist: 0.575
-                                        angle: 0.0
-                                    boxes:
-                                        dist: 0.575
-                                        angle: 0.0
-                                    ball_in_left_hand:
-                                        data: False
-                                    ball_in_right_hand:
-                                        data: False
-                            start: 0
-                            end: 3000
-                            period: 3000
-    ``` 
+```yaml
+LTM:
+    Nodes:
+        Perception:
+            -
+                name: ball_in_left_hand
+                class_name: cognitive_nodes.perception.DiscreteEventSimulatorPerception
+                parameters:
+                    default_msg: std_msgs.msg.Bool
+                    default_topic: /mdb/baxter/sensor/ball_in_left_hand
+            -
+                name: ball_in_right_hand
+                class_name: cognitive_nodes.perception.DiscreteEventSimulatorPerception
+                parameters:
+                    default_msg: std_msgs.msg.Bool
+                    default_topic: /mdb/baxter/sensor/ball_in_right_hand
+            -
+                name: boxes
+                class_name: cognitive_nodes.perception.DiscreteEventSimulatorPerception
+                parameters:
+                    default_msg: simulators_interfaces.msg.ObjectListMsg
+                    default_topic: /mdb/baxter/sensor/boxes
+                    normalize_data:
+                        distance_min: 0.2
+                        distance_max: 1.9
+                        angle_min: -1.4
+                        angle_max: 1.4
+                        diameter_min: 0.0
+                        diameter_max: 0.15
+            -
+                name: cylinders
+                class_name: cognitive_nodes.perception.DiscreteEventSimulatorPerception
+                parameters:
+                    default_msg: simulators_interfaces.msg.ObjectListMsg
+                    default_topic: /mdb/baxter/sensor/cylinders
+                    normalize_data:
+                        distance_min: 0.2
+                        distance_max: 1.9
+                        angle_min: -1.4
+                        angle_max: 1.4
+                        diameter_min: 0.0
+                        diameter_max: 0.15
+        WorldModel:
+            -
+                name: GRIPPER_AND_LOW_FRICTION
+                class_name: cognitive_nodes.world_model.WorldModel
+        Need: 
+            -
+                name: object_in_box_need
+                class_name: cognitive_nodes.need.Need
+                parameters:
+                    weight: 1.0
+                    drive_id: 'object_in_box_drive'
+                    need_type: 'Operational'
+            - 
+                name: novelty_need
+                class_name: cognitive_nodes.need.Need
+                parameters:
+                    weight: 0.2
+                    drive_id: 'novelty_drive'
+                    need_type: 'Cognitive'
+        Drive:
+            -
+                name: object_in_box_drive
+                class_name: cognitive_nodes.drive.DriveExponential
+                parameters:
+                    input_topic: /mdb/baxter/sensor/progress
+                    input_msg: std_msgs.msg.Float32
+                    min_eval: 0.8 
+                    neighbors: [{"name": "object_in_box_need", "node_type": "Need"}]
+
+            -
+                name: novelty_drive
+                class_name: cognitive_nodes.novelty.DriveNovelty
+                parameters:
+                    neighbors: [{"name": "novelty_need", "node_type": "Need"}]
+``` 
 
 - **Connectors:**
 
@@ -225,6 +237,10 @@ SimulatedBaxter:
             name: ball_in_right_hand
             perception_topic: /mdb/baxter/sensor/ball_in_right_hand
             perception_msg: std_msgs.msg.Bool
+        -
+            name: progress_ball_in_box
+            perception_topic: /mdb/baxter/sensor/progress
+            perception_msg: std_msgs.msg.Float32
 ```
 
 You can check complete YAML files in the */experiments* directory of the *experiments* package in the [emdb_experiments](https://github.com/pillar-robots/emdb_experiments_gii) repository.
@@ -238,7 +254,7 @@ The launch file is divided into two Python functions:
 
 **Launch setup:**
 
-Here we have to put the input arguments and parameters that the execution nodes will take. Also, we have to put the essential execution nodes to launch de architecture (commander, ltm) and the other ones that launch our specific modules, such as the Discrete Event Simulator, for example.
+Here we have to put the input arguments and parameters that the execution nodes will take. Also, we have to put the essential execution nodes to launch the architecture (commander, ltm) and the other ones that launch our specific modules, such as the Discrete Event Simulator, for example.
 
 ```python
 def launch_setup(context: LaunchContext, *args, **kwargs):
@@ -267,7 +283,7 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
 
     simulator_node = Node(
         package="simulators",
-        executable="simulator",
+        executable="fruit_shop_simulator",
         output="screen",
         parameters=[
             {
@@ -278,6 +294,39 @@ def launch_setup(context: LaunchContext, *args, **kwargs):
             }
         ],
     )
+
+    config_service_call = ExecuteProcess(
+        cmd=[
+            [
+                FindExecutable(name="ros2"),
+                " ",
+                "service call",
+                " ",
+                "commander/load_config",
+                " ",
+                "core_interfaces/srv/LoadConfig",
+                " ",
+                '"{file:',
+                " ",
+                PathJoinSubstitution(
+                    [FindPackageShare(config_package), "config", config_file]
+                ),
+                '}"',
+            ]
+        ],
+        shell=True,
+    )
+
+    shutdown_on_exit = RegisterEventHandler(
+        OnProcessExit(
+            target_action=core_node,
+            on_exit=[Shutdown()],  
+        )
+    )
+
+    nodes_to_start = [config_service_call, core_node, ltm_node, simulator_node, shutdown_on_exit]
+
+    return nodes_to_start
 ```
 
 **Generate launch description:**
@@ -308,7 +357,7 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             "experiment_file",
-            default_value="default_experiment.yaml",
+            default_value="fruit_shop_experiment.yaml",
             description="The file that loads the experiment config",
         )
     )

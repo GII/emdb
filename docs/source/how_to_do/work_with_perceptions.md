@@ -1,9 +1,9 @@
 # How to work with Perceptions
 In this section, we are going to explain how to work with the Perception cognitive node in the context of the e-MDB cognitive architecture of the PILLAR Robots project. Here you will be able to check how to configure a Perception node or how to interact with it, in order to get its expected behavior.
 
-## How to configure a Perception node
+## How to create a new perception node type
 
-If you want to configure the behavior of a Perception node, you can create your own class in the perception.py script.
+If you want to configure the behavior of a Perception node, you can create your own class by inheriting the base class from the perception.py module.
 
 The basic method that must be implemented is the **process_and_send_reading**, which is in charge of transforming the perceptions received from a simulator or a real robot to the format used in the cognitive architecture. Then, it publishes the transformed perception in the Value topic. The format of the perception is the following one:
 
@@ -80,17 +80,30 @@ With that implementation, the transformed perception of these sensors has the fo
 
 In conclusion, we can add to the architecture the perceptions we want, but we need to create a process_and_send_reading that transforms it to the format indicated above.
 
-It's important to remember that, for correct behavior of the cognitive architecture, the perception values must be normalized. That normalization process can be done in the process_and_send_reading method, indicating the values to normalize in the experiment configuration YAML file.
+It's important to remember that, for correct behavior of the cognitive architecture, the perception values **must be normalized.** That normalization process can be done in the process_and_send_reading method, indicating the values to normalize in the experiment configuration YAML file.
+
+## How to configure a Perception node
+
+The created Perception node classes can be added to the architecture using the YAML configuration file of the experiment. All parameters included in the constructor can be set in the *parameters* field. We have a default topic configured in the configuration YAML file of the experiment from which the Perception node reads the original sensor values, coming from the robot or simulator, before transforming them.
+
+```yaml
+    Nodes:
+        Perception:
+            -
+                name: button_light
+                class_name: cognitive_nodes.perception.FruitShopPerception
+                parameters:
+                    default_msg: std_msgs.msg.Bool
+                    default_topic: /emdb/simulator/sensor/button_light
+```
+
 
 ## How to interact with a Perception node
 
 The way to interact with a perceptual node, mainly, is by calling the **set_activation service** or by subscribing to the **value topic**.
 
 <!-- Hay que implementarlo en el main loop!! -->
-In the case of the activation, the default value of the Perception node is 1.0, and it's implemented a dummy calculate_activation method, that only returns the current activation value. Because of that, we can decide if a Perception node works or not during execution by calling the set_activation service. If we change one activation to 0.0, the information of that node won't enter the architecture.
+<!-- In the case of the activation, the default value of the Perception node is 1.0, and it's implemented by a dummy calculate_activation method, that only returns the current activation value. Because of that, we can decide if a Perception node works or not during execution by calling the set_activation service. If we change one activation to 0.0, the information of that node won't enter the architecture. -->
 
 In the Value topic, we can read the transformed and normalized value of the perception and we can use it in the cognitive architecture.
-
-At this moment, we have a default topic configured in the configuration YAML file of the experiment from which the Perception node reads the original sensor values, coming from the robot or simulator, before transforming them. In the future, will be available a **set_inputs service**, with which we will be able to change that topic during execution.
-
 
