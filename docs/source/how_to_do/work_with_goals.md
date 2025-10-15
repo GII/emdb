@@ -1,5 +1,5 @@
 # How to work with Motivations 
-In this section, we are going to explain how to work with the motivational cognitive nodes in the context of the e-MDB cognitive architecture of the PILLAR Robots project. Here you will be able to check how to configure robot's motivations either as Goals or Desires/Drives nodes and how to interact with them in order to get the expected behavior.
+In this section, we are going to explain how to work with the motivational cognitive nodes in the context of the e-MDB cognitive architecture of the PILLAR Robots project. Here you will be able to check how to configure robot's motivations either as Goals or Robot Purpose/Drives nodes and how to interact with them in order to get the expected behavior.
 
 ## How to configure a standalone Goal node
 
@@ -93,21 +93,22 @@ def calculate_activation(self, perception = None):
     return self.activation
 ```
 
-## Linking needs, drives and goals
+## Linking robot purposes, drives and goals
 
-In the latest version of the architecture **Need** and **Drive** nodes were implemented. These nodes alter both the activation and reward provided by the goal. A simple setup would include a chain of a need, drive and goal nodes, as in the following example:
+In the latest version of the architecture **RobotPurpose** and **Drive** nodes were implemented. These nodes alter both the activation and reward provided by the goal. A simple setup would include a chain of a robot purpose, drive and goal nodes, as in the following example:
 
 ```yaml
 LTM:
     Nodes:
-        Need: 
+        RobotPurpose: 
             -
-                name: object_in_box_need
-                class_name: cognitive_nodes.need.Need
+                name: object_in_box_mission
+                class_name: cognitive_nodes.robot_purpose.RobotPurpose
                 parameters:
                     weight: 1.0
                     drive_id: 'object_in_box_drive'
-                    need_type: 'Operational'
+                    purpose_type: 'Mission'
+                    terminal: True
         Drive:
             -
                 name: object_in_box_drive
@@ -116,7 +117,7 @@ LTM:
                     input_topic: /mdb/baxter/sensor/progress
                     input_msg: std_msgs.msg.Float32
                     min_eval: 0.8 
-                    neighbors: [{"name": "object_in_box_need", "node_type": "Need"}]
+                    neighbors: [{"name": "object_in_box_mission", "node_type": "Need"}]
         Goal:
             -
                 name: object_in_box_goal
@@ -125,7 +126,7 @@ LTM:
                     neighbors: [{"name": "object_in_box_drive", "node_type": "Drive"}]
 ```
 
-This setup allows for full control on the behavior of the different nodes, as each class can be customized as required. Beyond this, the architecture now allows the goals to be automatically discovered and learned. This applies to all drives that do not have a goal linked beforehand. The architecture will create a goal of the class specified in the *connectors* parameter when a reward is detected in a drive. The following example shows how to set up this configuration:
+This setup allows for full control on the behavior of the different nodes, as each class can be customized as required. Beyond this, the architecture now allows the goals to be automatically discovered and learned. This applies to all drives that do not have a goal linked beforehand. The architecture will create a goal of the class specified in the *connectors* parameter when a reward is detected in a drive. The purpose type is used for identification and the terminal flag indicates if a world reset is required after satisfying the purpose.  The following example shows how to set up this configuration:
 
 ```yaml
 LTM:
@@ -134,14 +135,15 @@ LTM:
             data: Goal
             default_class: cognitive_nodes.goal.GoalLearnedSpace
     Nodes:
-        Need: 
+        RobotPurpose: 
             -
-                name: object_in_box_need
-                class_name: cognitive_nodes.need.Need
+                name: object_in_box_mission
+                class_name: cognitive_nodes.robot_purpose.RobotPurpose
                 parameters:
                     weight: 1.0
                     drive_id: 'object_in_box_drive'
-                    need_type: 'Operational'
+                    purpose_type: 'Mission'
+                    terminal: True
         Drive:
             -
                 name: object_in_box_drive
@@ -150,15 +152,15 @@ LTM:
                     input_topic: /mdb/baxter/sensor/progress
                     input_msg: std_msgs.msg.Float32
                     min_eval: 0.8 
-                    neighbors: [{"name": "object_in_box_need", "node_type": "Need"}]
+                    neighbors: [{"name": "object_in_box_mission", "node_type": "Need"}]
 ```
 
-### How to interact with a Need node
+### How to interact with a RobotPurpose node
 
-There are two ROS2 services to interact with the Need nodes:
+There are two ROS2 services to interact with the RobotPurpose nodes:
 
-- **Set_activation service** With this service the activation of the Need node can be changed, which can be used to modify how strongly a need is prioritized.
-- **Get_satisfaction service** With this service we can ask whether the need is satisfied or not. This means, that the linked drive has an evaluation of 0. 
+- **Set_activation service** With this service the activation of the RobotPurpose node can be changed, which can be used to modify how strongly a purpose is prioritized.
+- **Get_satisfaction service** With this service we can ask whether the purpose is satisfied or not. This means, that the linked drive has an evaluation of 0. 
 
 ### How to interact with a Drive node
 
@@ -179,7 +181,7 @@ The class DriveInputTopic creates a drive with a configurable input topic. The i
                     input_topic: /mdb/baxter/sensor/progress
                     input_msg: std_msgs.msg.Float32
                     min_eval: 0.8 
-                    neighbors: [{"name": "object_in_box_need", "node_type": "Need"}]
+                    neighbors: [{"name": "object_in_box_mission", "node_type": "Need"}]
 ```
 
 ## The GoalMotiven and GoalLearnedSpace classes

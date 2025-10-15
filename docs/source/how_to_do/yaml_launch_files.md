@@ -152,21 +152,22 @@ LTM:
             -
                 name: GRIPPER_AND_LOW_FRICTION
                 class_name: cognitive_nodes.world_model.WorldModel
-        Need: 
+        RobotPurpose: 
             -
-                name: object_in_box_need
-                class_name: cognitive_nodes.need.Need
+                name: object_in_box_mission
+                class_name: cognitive_nodes.robot_purpose.RobotPurpose
                 parameters:
                     weight: 1.0
                     drive_id: 'object_in_box_drive'
-                    need_type: 'Operational'
+                    purpose_type: 'Mission'
+                    terminal: True
             - 
                 name: novelty_need
-                class_name: cognitive_nodes.need.Need
+                class_name: cognitive_nodes.robot_purpose.RobotPurpose
                 parameters:
                     weight: 0.2
                     drive_id: 'novelty_drive'
-                    need_type: 'Cognitive'
+                    purpose_type: 'Need'
         Drive:
             -
                 name: object_in_box_drive
@@ -175,13 +176,13 @@ LTM:
                     input_topic: /mdb/baxter/sensor/progress
                     input_msg: std_msgs.msg.Float32
                     min_eval: 0.8 
-                    neighbors: [{"name": "object_in_box_need", "node_type": "Need"}]
+                    neighbors: [{"name": "object_in_box_mission", "node_type": "RobotPurpose"}]
 
             -
                 name: novelty_drive
                 class_name: cognitive_nodes.novelty.DriveNovelty
                 parameters:
-                    neighbors: [{"name": "novelty_need", "node_type": "Need"}]
+                    neighbors: [{"name": "novelty_need", "node_type": "RobotPurpose"}]
 ``` 
 
 - **Connectors:**
@@ -216,7 +217,7 @@ LTM:
 
 - **Others:**
 
-We can add all the parameters that will be needed in eur experimentA
+We can add all the parameters that will be needed in our experiment:
 
 ```yaml
 SimulatedBaxter:
