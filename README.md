@@ -10,7 +10,7 @@ The architecture, at this moment, is divided into five GitHub repositories:
 - [Discrete event simulator to be used in experiments](https://github.com/pillar-robots/emdb_discrete_event_simulator_gii) - Implementation of discrete event simulators used in experiments.
 - [Experiments designed by the GII](https://github.com/pillar-robots/emdb_experiments_gii) - Configuration files for experiments.
 
-You can find information and tutorials about the e-MDB cognitive architecture software in the [PILLAR Robots official documentation](https://docs.pillar-robots.eu/en/latest/)
+You can find information and tutorials about the e-MDB cognitive architecture software in the [official documentation](https://docs.pillar-robots.eu/en/latest/)
 
 # How to install
 
