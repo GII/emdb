@@ -30,3 +30,8 @@ git add *
 git commit -m "Updated submodules to latest branch commit"
 git push origin main
 ```
+
+
+Grant PID2021-126220OB-I00 funded by MCIN/AEI/ 10.13039/501100011033 and by "ERDF A way of making Europe".
+
+![Grant PID2021-126220OB-I00 funded by MCIN/AEI/ 10.13039/501100011033 and by "ERDF A way of making Europe".](docs/source/images/micin-uefeder-aei.jpg)
